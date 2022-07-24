@@ -28,6 +28,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "img-src": ["'self'", "https: data:"]
+    }
+  })
+)
 
 // standard middleware
 app.use(cors());
