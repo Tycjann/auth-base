@@ -3,13 +3,33 @@ const cors = require('cors');
 const path = require('path');
 const hbs = require('express-handlebars');
 const helmet = require('helmet');
+const passport = require('passport');
+const session = require('express-session');
+const passportConfig = require('./config/passport');
+
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
+// set handlebars as view engine
 app.engine('hbs', hbs({ extname: 'hbs', layoutsDir: './layouts', defaultLayout: 'main' }));
 app.set('view engine', '.hbs');
 
+// init session mechanism
+app.use(session({
+  secret: '572fgdgsldgs9949634jsgd4564sgss059',
+  resave: true,
+  saveUninitialized: true
+}));
+
+// init passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(helmet());
+
+// standard middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -19,13 +39,8 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/user/logged', (req, res) => {
-  res.render('logged');
-});
-
-app.get('/user/no-permission', (req, res) => {
-  res.render('noPermission');
-});
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 
 app.use('/', (req, res) => {
   res.status(404).render('notFound');
